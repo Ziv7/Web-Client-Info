@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #643c3c;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .info-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .info-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #376a6b;
+        }
+        .info-description {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .info-data {
+            font-size: 1.1em;
+            color: #333;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+		/* Responsive styles */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    .container {
+        padding: 15px;
+    }
+    .info-title {
+        font-size: 1.1em;
+    }
+    .info-data {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .info-section {
+        padding: 10px;
+    }
+    .info-title {
+        font-size: 1em;
+    }
+    .info-description {
+        font-size: 0.8em;
+    }
+    .info-data {
+        font-size: 0.9em;
+    }
+}
+    </style>
+    <script>
+        async function fetchIpAndLocation() {
+            try {
+                // Fetch the client's IP address
+                const ipResponse = await fetch('https://api64.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ipAddress = ipData.ip;
+
+                // Display the IP address
+                document.getElementById('ip').querySelector('.info-data').innerText = ipAddress;
+
+                // Fetch geolocation data using the IP address
+                const geoResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+                const geoData = await geoResponse.json();
+
+                // Display the geolocation data
+                const locationDiv = document.getElementById('location').querySelector('.info-data');
+                locationDiv.innerHTML = `${geoData.city || 'Unknown City'}, ${geoData.region || 'Unknown Region'} (${geoData.country_name || 'Unknown Country'})<br>
+                                        Latitude: ${geoData.latitude}<br>
+                                        Longitude: ${geoData.longitude}`;
+
+                // Get and display user agent details
+                const userAgent = navigator.userAgent;
+                document.getElementById('user-agent').querySelector('.info-data').innerText = userAgent;
+
+                // Get and display screen resolution
+                const screenResolution = `${window.screen.width} x ${window.screen.height}`;
+                document.getElementById('screen-resolution').querySelector('.info-data').innerText = screenResolution;
+
+                // Determine device type
+                const deviceType = /Mobi|Android/i.test(userAgent) ? 'Mobile Device' : 'Desktop Device';
+                document.getElementById('device-type').querySelector('.info-data').innerText = deviceType;
+
+                // Get network information
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                const networkType = connection ? connection.effectiveType : 'Unknown';
+                document.getElementById('network-info').querySelector('.info-data').innerText = networkType;
+
+                // Measure performance metrics
+                const perfEntries = performance.getEntriesByType('navigation');
+                const pageLoadTime = perfEntries[0] ? perfEntries[0].duration : 'N/A';
+                document.getElementById('performance-metrics').querySelector('.info-data').innerText = `${pageLoadTime.toFixed(2)} ms`;
+
+                // Display language preferences
+                const languages = navigator.languages.join(', ');
+                document.getElementById('language-preferences').querySelector('.info-data').innerText = languages;
+
+				// Display cookies
+				const cookies = document.cookie ? document.cookie.split('; ').map(cookie => cookie.trim()).join('<br>') : 'No cookies found.';
+				document.getElementById('cookies').querySelector('.info-data').innerHTML = cookies; 
+			
+				// Local Storage Data
+				const localStorageData = localStorage.length > 0 
+					? Object.keys(localStorage).map(key => `${key}: ${localStorage.getItem(key)}`).join('<br>')
+					: 'No data in Local Storage.';
+				document.getElementById('local-storage').querySelector('.info-data').innerHTML = localStorageData; 
+
+                // Display time zone
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                document.getElementById('time-zone').querySelector('.info-data').innerText = timeZone;
+
+                // Display referrer information
+                const referrer = document.referrer ? document.referrer : 'No referrer information available.';
+                document.getElementById('referrer-info').querySelector('.info-data').innerText = referrer;
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('location').innerText = 'Error retrieving location data.';
+            }
+        }
+	// Function to update mouse coordinates
+        function updateMouseCoordinates(event) {
+            const x = event.clientX; // get X coordinate
+            const y = event.clientY; // get Y coordinate
+            document.getElementById('mouse-coordinates').querySelector('.info-data').innerText = `X: ${x}, Y: ${y}`;
+        }
+
+        // Add mouse move event listener
+        document.addEventListener('mousemove', updateMouseCoordinates);
+		
+		// Function to get connection type
+function getConnectionInfo() {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const connectionType = connection ? connection.effectiveType || 'Unknown' : 'No connection information available.';
+    document.getElementById('connection-info').querySelector('.info-data').innerText = `Connection Type: ${connectionType}`;
+}
+
+// Function to get system uptime (using the performance API)
+function getUptime() {
+    // Note: The uptime functionality is limited in browsers.
+    const uptime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart; // Time since page load
+    const uptimeInSeconds = (uptime / 1000).toFixed(2);  // Convert to seconds
+    document.getElementById('uptime-info').querySelector('.info-data').innerText = `Uptime since page load: ${uptimeInSeconds} seconds`;
+}
+// Function to check permissions
+ async function checkPermissions() {
+        const permissions = [
+            { name: 'geolocation', description: 'Location' },
+            { name: 'notifications', description: 'Notifications' },
+            { name: 'camera', description: 'Camera' },
+            { name: 'microphone', description: 'Microphone' },
+            { name: 'clipboard-read', description: 'Clipboard Read' },
+            { name: 'clipboard-write', description: 'Clipboard Write' }
+        ];
+
+        let permissionStatus = "<strong>Status of Permissions:</strong><br>";
+
+        for (const permission of permissions) {
+            try {
+                const status = await navigator.permissions.query({ name: permission.name });
+                permissionStatus += `${permission.description}: ${status.state}<br>`;
+            } catch (error) {
+                permissionStatus += `${permission.description}: Not Available<br>`;
+            }
+        }
+
+        document.getElementById('permissions-info').querySelector('.info-data').innerHTML = permissionStatus;
+    }
+	
+
+let startTime; // Variable to store the start time
+
+// Function to start measuring uptime
+function startUptime() {
+    startTime = performance.now(); // Record the time when the page loaded
+}
+
+// Function to format uptime into a detailed timestamp
+function formatUptime(totalSeconds) {
+    const secondsInMinute = 60;
+    const secondsInHour = secondsInMinute * 60;
+    const secondsInDay = secondsInHour * 24;
+    const secondsInMonth = secondsInDay * 30; // Approximation for simplicity
+
+    const months = Math.floor(totalSeconds / secondsInMonth);
+    totalSeconds %= secondsInMonth;
+
+    const days = Math.floor(totalSeconds / secondsInDay);
+    totalSeconds %= secondsInDay;
+
+    const hours = Math.floor(totalSeconds / secondsInHour);
+    totalSeconds %= secondsInHour;
+
+    const minutes = Math.floor(totalSeconds / secondsInMinute);
+    const seconds = totalSeconds % secondsInMinute;
+
+    return `${months} months, ${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
+}
+
+// Function to get and display system uptime
+function getUptime() {
+    const elapsed = performance.now() - startTime; // Calculate elapsed time since page load
+    const uptimeInSeconds = Math.floor(elapsed / 1000);  // Convert to seconds
+    const readableUptime = formatUptime(uptimeInSeconds); // Convert to readable format
+
+    // Display the formatted uptime
+    document.getElementById('uptime-info').querySelector('.info-data').innerText = `
+        Uptime since page load: ${uptimeInSeconds} seconds (${readableUptime})
+    `;
+}
+
+// Start uptime measurement and setup interval for updates
+function startUptimeTracking() {
+    startUptime(); // Begin timing
+    getUptime(); // Initial display of uptime
+
+    // Update uptime every second
+    setInterval(getUptime, 1000);
+}
+
+        
+	// Call the function when the page loads
+        window.onload = function (){
+		startUptimeTracking(); 
+		fetchIpAndLocation();
+		checkPermissions();
+		}
+    </script>	
+</head>
+<body>
+    <h1>Client Information</h1>
+    <div class="container">
+        <div class="info-section" id="ip">
+            <div class="info-title">IP Address</div>
+            <div class="info-description">Your unique public IP address used for identification on the internet.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="location">
+            <div class="info-title">Location</div>
+            <div class="info-description">Geolocation based on your IP address, indicating where you are accessing the internet from.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="user-agent">
+            <div class="info-title">User Agent</div>
+            <div class="info-description">Details about your browser and operating system being used.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="screen-resolution">
+            <div class="info-title">Screen Resolution</div>
+            <div class="info-description">The dimensions of your screen, which can affect how websites are displayed.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="device-type">
+            <div class="info-title">Device Type</div>
+            <div class="info-description">Identifies whether you are using a mobile device or desktop.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="network-info">
+            <div class="info-title">Network Type</div>
+            <div class="info-description">The network connection type you are currently using (e.g., WiFi, 4G).</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="performance-metrics">
+            <div class="info-title">Performance Metrics</div>
+            <div class="info-description">Measures how long it takes for the page to load on your device.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="language-preferences">
+            <div class="info-title">Language Preferences</div>
+            <div class="info-description">Languages your browser is set to prioritize for content display.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="cookies">
+            <div class="info-title">Cookies</div>
+            <div class="info-description">Small pieces of data stored by your browser for session management.</div>
+            <div class="info-data"></div>
+        </div>
+        <div class="info-section" id="local-storage">
+            <div class="info-title">Local Storage</div>
+            <div class="info-description">Data stored in your browser for improved performance and user experience.</div>
+            <div class="info-data"></div>
+        </div>
+<div class="info-section" id="time-zone">
+    <div class="info-title">Time Zone</div>
+    <div class="info-description">Your local time zone based on your geographical location.</div>
+    <div class="info-data"></div>
+</div>
+<div class="info-section" id="referrer-info">
+    <div class="info-title">Referrer Information</div>
+    <div class="info-description">The URL of the site you visited before coming here.</div>
+    <div class="info-data"></div>
+</div>
+
+    <div class="info-section" id="permissions-info">
+        <div class="info-title">Browser Permissions</div>
+        <div class="info-description">Check the status of various permissions configured for this site.</div>
+        <div class="info-data"></div>
+    </div>
+    <div class="info-section" id="uptime-info">
+        <div class="info-title">Page Uptime</div>
+        <div class="info-description">Time since the last reboot of your Page.</div>
+        <div class="info-data"></div>
+    </div>
+
+<div class="info-section" id="mouse-coordinates">
+    <div class="info-title">Mouse Coordinates</div>
+    <div class="info-description">Current position of the mouse on the screen.</div>
+    <div class="info-data">
+	</div>
+</div>
+</body>
+</html>
